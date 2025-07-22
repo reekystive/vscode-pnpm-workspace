@@ -31,7 +31,7 @@ export async function getWorkspaceDependencies(
 
   try {
     const content = await vscode.workspace.fs.readFile(packageJsonUri);
-    const packageJsonText = Buffer.from(content).toString('utf8');
+    const packageJsonText = new TextDecoder('utf-8').decode(content);
     const packageJson = JSON.parse(packageJsonText) as unknown;
 
     // Validate the package.json structure

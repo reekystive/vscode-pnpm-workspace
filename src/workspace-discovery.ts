@@ -56,7 +56,7 @@ export async function loadWorkspaceConfig(workspaceFileUri: vscode.Uri): Promise
     log(`Loading workspace config from: ${workspaceFileUri.toString()}`);
 
     const content = await vscode.workspace.fs.readFile(workspaceFileUri);
-    const yamlContent = Buffer.from(content).toString('utf8');
+    const yamlContent = new TextDecoder('utf-8').decode(content);
 
     log('Parsing YAML content with js-yaml');
     const parsedYaml = yaml.load(yamlContent);

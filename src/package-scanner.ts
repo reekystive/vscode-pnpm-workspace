@@ -74,7 +74,7 @@ export async function loadPackageInfo(packageJsonUri: vscode.Uri): Promise<{ nam
     log(`Loading package info from: ${packageJsonUri.toString()}`);
 
     const content = await vscode.workspace.fs.readFile(packageJsonUri);
-    const packageJsonText = Buffer.from(content).toString('utf8');
+    const packageJsonText = new TextDecoder('utf-8').decode(content);
     const packageJson = JSON.parse(packageJsonText) as unknown;
 
     // Validate with zod
