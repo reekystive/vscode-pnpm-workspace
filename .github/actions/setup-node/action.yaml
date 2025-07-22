@@ -1,0 +1,25 @@
+name: Setup Node.js with corepack
+description: Setup Node.js from package.json and enable corepack
+
+runs:
+  using: composite
+  steps:
+    - name: Read Node.js version from package.json
+      id: node-version
+      shell: bash
+      run: |
+        NODE_VERSION=$(jq -r '.engines.node' package.json)
+        echo "node_version=${NODE_VERSION}" >> $GITHUB_OUTPUT
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ steps.node-version.outputs.node_version }}
+
+    - name: Enable corepack
+      shell: bash
+      run: corepack enable
+
+    - name: Prepare package manager
+      shell: bash
+      run: corepack prepare

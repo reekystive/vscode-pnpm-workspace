@@ -1,0 +1,8 @@
+onlyBuiltDependencies:
+  - '@vscode/vsce-sign'
+  - keytar
+  - esbuild
+  - eslint-config-prettier
+
+ignoredBuiltDependencies:
+  - '@playwright/browser-chromium'

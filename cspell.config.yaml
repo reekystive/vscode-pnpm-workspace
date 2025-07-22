@@ -1,0 +1,11 @@
+words:
+  - amodio
+  - dbaeumer
+  - esbuild
+  - keytar
+  - Mingxuan
+  - ovsx
+  - Rescan
+ignorePaths:
+  - pnpm-lock.yaml
+  - cspell.config.yaml

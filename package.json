@@ -1,0 +1,134 @@
+{
+  "name": "pnpm-workspace",
+  "displayName": "pnpm Workspace",
+  "version": "0.1.0",
+  "description": "Life-saving extension for pnpm workspace, especially for large-scale monorepo projects",
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "node",
+    "node.js",
+    "package",
+    "package.json",
+    "open",
+    "reveal",
+    "explorer",
+    "terminal",
+    "monorepo",
+    "workspace",
+    "pnpm",
+    "search",
+    "find",
+    "copy",
+    "relative",
+    "absolute",
+    "path",
+    "utilities",
+    "navigation"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/reekystive/vscode-pnpm-workspace"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "reekystive",
+    "email": "reekystive@gmail.com"
+  },
+  "publisher": "reekystive",
+  "type": "module",
+  "main": "./dist/extension.cjs",
+  "browser": "./dist/extension.web.cjs",
+  "scripts": {
+    "check-types": "tsc --build tsconfig.json --noEmit",
+    "compile": "pnpm run check-types && node esbuild.mjs",
+    "lint": "eslint . --max-warnings=0 --report-unused-disable-directives --cache --cache-strategy=content --cache-location=./node_modules/.cache/eslint/eslintcache.json",
+    "package": "pnpm run check-types && pnpm run lint && node esbuild.mjs --production",
+    "run-extension": "code --extensionDevelopmentPath=. --disable-extensions",
+    "run-web-extension": "code --extensionDevelopmentPath=. --extensionDevelopmentKind=web --disable-extensions",
+    "open-in-browser": "vscode-test-web --extensionDevelopmentPath=. .",
+    "pretest": "pnpm run compile && pnpm run lint",
+    "test": "vscode-test",
+    "test-web": "pnpm run test --extensionDevelopmentKind=web",
+    "vscode:prepublish": "pnpm run package",
+    "watch": "pnpm run '/^watch:.*/'",
+    "watch-tests": "tsc --build tsconfig.json --watch --preserveWatchOutput",
+    "watch:esbuild": "node esbuild.mjs --watch",
+    "watch:tsc": "tsc --build tsconfig.json --noEmit --watch --preserveWatchOutput"
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "pnpm-workspace.copyWorkspaceDependenciesOf",
+        "title": "pnpm Workspace: Copy Workspace Dependencies of...",
+        "shortTitle": "Copy Workspace Dependencies"
+      },
+      {
+        "command": "pnpm-workspace.rescanWorkspacePackages",
+        "title": "pnpm Workspace: Re-scan Workspace Packages",
+        "shortTitle": "Re-scan Workspace Packages"
+      }
+    ],
+    "configuration": {
+      "title": "pnpm Workspace",
+      "properties": {
+        "pnpmWorkspace.copyWorkspaceDependencies.includeDependencies": {
+          "type": "boolean",
+          "default": true,
+          "description": "Include production dependencies when copying workspace dependencies"
+        },
+        "pnpmWorkspace.copyWorkspaceDependencies.includeDevDependencies": {
+          "type": "boolean",
+          "default": true,
+          "description": "Include devDependencies when copying workspace dependencies"
+        },
+        "pnpmWorkspace.copyWorkspaceDependencies.includeOptionalDependencies": {
+          "type": "boolean",
+          "default": true,
+          "description": "Include optionalDependencies when copying workspace dependencies"
+        }
+      }
+    }
+  },
+  "activationEvents": [],
+  "dependencies": {
+    "js-yaml": "^4.1.0",
+    "vscode-uri": "^3.1.0",
+    "zod": "^4.0.5"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.16.5",
+    "@types/vscode": "^1.99.0",
+    "@vscode/test-cli": "^0.0.11",
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/test-web": "^0.0.71",
+    "@vscode/vsce": "^3.6.0",
+    "esbuild": "^0.25.8",
+    "eslint": "^9.25.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.3",
+    "ovsx": "^0.10.5",
+    "playwright": "^1.54.1",
+    "prettier": "^3.6.2",
+    "prettier-plugin-organize-imports": "^4.1.0",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.37.0"
+  },
+  "packageManager": "pnpm@10.13.1+sha512.37ebf1a5c7a30d5fabe0c5df44ee8da4c965ca0c5af3dbab28c3a1681b70a256218d05c81c9c0dcf767ef6b8551eb5b960042b9ed4300c59242336377e01cfad",
+  "engines": {
+    "node": "22.15.0",
+    "pnpm": "10.13.1",
+    "vscode": "^1.99.0"
+  },
+  "icon": "images/icon.jpeg",
+  "capabilities": {
+    "virtualWorkspaces": true
+  },
+  "extensionKind": [
+    "workspace",
+    "ui"
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "name": "web-app",
+  "version": "1.0.0",
+  "dependencies": {
+    "pkg-a": "workspace:*",
+    "pkg-b": "workspace:*",
+    "next": "^14.0.0"
+  }
+}

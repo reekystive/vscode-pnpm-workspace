@@ -1,0 +1,224 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+
+name: Build and Publish
+
+on:
+  push:
+    branches:
+      - '*'
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    name: Lint and typecheck
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Setup Node.js with corepack
+        uses: ./.github/actions/setup-node
+
+      - name: Setup cache
+        uses: ./.github/actions/setup-cache
+        with:
+          restore-key-prefix: 'lint-cache'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run typecheck
+        run: pnpm run check-types
+
+      - name: Run linting
+        run: pnpm run lint
+
+  test:
+    name: Run tests
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Setup Node.js with corepack
+        uses: ./.github/actions/setup-node
+
+      - name: Setup cache
+        uses: ./.github/actions/setup-cache
+        with:
+          restore-key-prefix: 'test-cache'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run tests (Linux)
+        if: runner.os == 'Linux'
+        run: xvfb-run -a pnpm run test
+
+      - name: Run tests (non-Linux)
+        if: runner.os != 'Linux'
+        run: pnpm run test
+
+  build:
+    runs-on: ubuntu-latest
+    name: Build extension
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Setup Node.js with corepack
+        uses: ./.github/actions/setup-node
+
+      - name: Setup cache
+        uses: ./.github/actions/setup-cache
+        with:
+          restore-key-prefix: 'build-cache'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build extension
+        run: pnpm run package
+
+      - name: Validate package version
+        run: |
+          PACKAGE_VERSION=$(jq -r '.version' package.json)
+          MINOR_VERSION=$(echo "$PACKAGE_VERSION" | cut -d. -f2)
+          if [ $((MINOR_VERSION % 2)) -ne 0 ]; then
+            echo "Error: Minor version must be even. Current version: $PACKAGE_VERSION"
+            echo "::error title=Minor version must be even::Minor version in package.json must be even. Current version: $PACKAGE_VERSION"
+            exit 1
+          fi
+          echo "Version validation passed: $PACKAGE_VERSION"
+
+      - name: Set version for packaging
+        id: version
+        run: |
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
+            PACKAGE_VERSION=$(jq -r '.version' package.json)
+            VERSION="${PACKAGE_VERSION}"
+          else
+            PACKAGE_VERSION=$(jq -r '.version' package.json)
+            MAJOR=$(echo "$PACKAGE_VERSION" | cut -d. -f1)
+            MINOR=$(echo "$PACKAGE_VERSION" | cut -d. -f2)
+            NEXT_MINOR=$((MINOR + 1))
+            # Use GitHub run number for guaranteed increment
+            PATCH="${{ github.run_number }}"
+            VERSION="${MAJOR}.${NEXT_MINOR}.${PATCH}"
+          fi
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Package extension (Pre-release)
+        if: github.ref_type != 'tag'
+        run: |
+          # Temporarily update package.json version for pre-release packaging
+          jq --arg version "${{ steps.version.outputs.version }}" '.version = $version' package.json > package.json.tmp
+          mv package.json.tmp package.json
+
+          pnpm vsce package --no-dependencies --pre-release --out "package-navigator-${{ steps.version.outputs.version }}.vsix"
+          echo "📦 Build type: Pre-release" >> $GITHUB_STEP_SUMMARY
+          echo "🚀 Version: ${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Package extension (Release)
+        if: github.ref_type == 'tag'
+        run: |
+          pnpm vsce package --no-dependencies --out "package-navigator-${{ steps.version.outputs.version }}.vsix"
+          echo "📦 Build type: Release" >> $GITHUB_STEP_SUMMARY
+          echo "🚀 Version: ${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: vscode-extension
+          path: '*.vsix'
+
+  publish-ovsx:
+    if: github.ref_type == 'tag' || (github.ref_type == 'branch' && github.ref == 'refs/heads/main')
+    needs:
+      - lint
+      - test
+      - build
+    runs-on: ubuntu-latest
+    name: Publish to Open VSX
+
+    steps:
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Enable corepack
+        shell: bash
+        run: corepack enable
+
+      - name: Prepare pnpm
+        shell: bash
+        run: |
+          corepack prepare pnpm@latest --activate
+          echo "PNPM_HOME=$HOME/.local/share/pnpm" >> $GITHUB_ENV
+          echo "$HOME/.local/share/pnpm" >> $GITHUB_PATH
+
+      - name: Install ovsx CLI
+        run: pnpm add -g ovsx --dangerously-allow-all-builds
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: vscode-extension
+
+      - name: Publish to Open VSX
+        run: ovsx publish --packagePath *.vsix --pat ${{ secrets.OVSX_TOKEN }}
+
+  publish-vsce:
+    if: github.ref_type == 'tag' || (github.ref_type == 'branch' && github.ref == 'refs/heads/main')
+    needs:
+      - lint
+      - test
+      - build
+    runs-on: ubuntu-latest
+    name: Publish to VS Code Marketplace
+
+    steps:
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Enable corepack
+        shell: bash
+        run: corepack enable
+
+      - name: Prepare pnpm
+        shell: bash
+        run: |
+          corepack prepare pnpm@latest --activate
+          echo "PNPM_HOME=$HOME/.local/share/pnpm" >> $GITHUB_ENV
+          echo "$HOME/.local/share/pnpm" >> $GITHUB_PATH
+
+      - name: Install vsce CLI
+        run: pnpm add -g vsce --dangerously-allow-all-builds
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: vscode-extension
+
+      - name: Publish to VS Code Marketplace
+        run: vsce publish --packagePath *.vsix --pat ${{ secrets.VSCE_TOKEN }}

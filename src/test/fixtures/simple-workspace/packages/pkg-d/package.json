@@ -1,0 +1,11 @@
+{
+  "name": "pkg-d",
+  "version": "1.0.0",
+  "peerDependencies": {
+    "pkg-a": "workspace:*",
+    "react": "^18.0.0"
+  },
+  "optionalDependencies": {
+    "pkg-b": "workspace:^1.0.0"
+  }
+}

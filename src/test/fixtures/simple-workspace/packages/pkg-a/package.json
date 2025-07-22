@@ -1,0 +1,16 @@
+{
+  "name": "pkg-a",
+  "version": "1.0.0",
+  "dependencies": {
+    "pkg-b": "workspace:*",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "pkg-c": "workspace:^1.0.0",
+    "typescript": "^5.0.0"
+  },
+  "peerDependencies": {
+    "pkg-d": "workspace:*",
+    "react": "^18.0.0"
+  }
+}
