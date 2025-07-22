@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/), and this 
 
 ## [Unreleased]
 
+## [0.2.2] - 2025-07-23
+
 ### Added
 
 - Command: Search in Package and Workspace Dependencies... - Select a package and open VS Code search with the package and its workspace dependencies pre-filled
