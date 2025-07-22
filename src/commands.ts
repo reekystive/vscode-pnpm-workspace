@@ -310,10 +310,6 @@ export function registerCommands(context: vscode.ExtensionContext) {
 
         // Get all paths (package + dependencies)
         const allPaths = await getPackageAndDependencyPaths(selected.package.name);
-        if (allPaths.length === 0) {
-          vscode.window.showInformationMessage(`No paths found for package "${selected.package.name}".`);
-          return;
-        }
 
         // Format paths for search (comma-space separated)
         const searchPaths = allPaths.join(', ');
@@ -325,9 +321,19 @@ export function registerCommands(context: vscode.ExtensionContext) {
           triggerSearch: false, // Don't auto-search, let user enter search term
         });
 
-        vscode.window.showInformationMessage(
-          `Opened search in ${allPaths.length} locations: ${selected.package.name} and its ${allPaths.length - 1} dependencies.`
-        );
+        // Show appropriate message based on whether workspace root is included
+        let message: string;
+        if (selected.package.isRoot && allPaths.length === 0) {
+          message = `Opened search in workspace root (${selected.package.name}) - no workspace dependencies found.`;
+        } else if (selected.package.isRoot) {
+          message = `Opened search in workspace root (${selected.package.name}) and its ${allPaths.length} dependencies.`;
+        } else {
+          const totalLocations = allPaths.length;
+          const dependencyCount = allPaths.length - 1;
+          message = `Opened search in ${totalLocations} locations: ${selected.package.name} and its ${dependencyCount} dependencies.`;
+        }
+
+        vscode.window.showInformationMessage(message);
       } catch (error) {
         logError('Failed to search in package and workspace dependencies', error);
         vscode.window.showErrorMessage('Failed to search in package and workspace dependencies');

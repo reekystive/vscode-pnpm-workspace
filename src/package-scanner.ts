@@ -82,7 +82,27 @@ export async function loadPackageInfo(packageJsonUri: vscode.Uri): Promise<{ nam
 
     const packageDir = Utils.dirname(packageJsonUri);
     const workspaceFolder = vscode.workspace.getWorkspaceFolder(packageDir);
-    const relativePath = workspaceFolder ? vscode.workspace.asRelativePath(packageDir, false) : packageDir.path;
+
+    let relativePath: string;
+    if (workspaceFolder) {
+      // Use asRelativePath and ensure it's actually relative
+      const vsCodeRelativePath = vscode.workspace.asRelativePath(packageDir, false);
+      // If asRelativePath returns an absolute path (starts with / or drive letter), compute manually
+      if (vsCodeRelativePath.startsWith('/') || (vsCodeRelativePath.length > 1 && vsCodeRelativePath[1] === ':')) {
+        // Manually compute relative path from workspace folder to package directory
+        const workspacePath = workspaceFolder.uri.fsPath;
+        const packagePath = packageDir.fsPath;
+        if (packagePath.startsWith(workspacePath)) {
+          relativePath = packagePath.substring(workspacePath.length + 1).replace(/\\/g, '/');
+        } else {
+          relativePath = vsCodeRelativePath;
+        }
+      } else {
+        relativePath = vsCodeRelativePath;
+      }
+    } else {
+      relativePath = packageDir.path;
+    }
 
     log(`Package validation successful: ${validatedPackage.name} at ${relativePath}`);
     return {

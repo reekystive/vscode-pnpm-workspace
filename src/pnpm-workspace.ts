@@ -46,9 +46,22 @@ export async function scanWorkspacePackages(): Promise<WorkspacePackage[]> {
       const rootInfo = await loadPackageInfo(rootPackageJson);
       if (rootInfo) {
         log(`Found workspace root package: ${rootInfo.name}`);
+
+        // For workspace root, determine the correct relative path
+        const workspaceFolder = vscode.workspace.getWorkspaceFolder(workspaceRoot);
+        let rootPath: string;
+        if (workspaceFolder && workspaceFolder.uri.toString() === workspaceRoot.toString()) {
+          // If this workspace root is the same as VS Code's workspace folder root, use "."
+          rootPath = '.';
+        } else {
+          // Otherwise, use the relative path from the current workspace folder
+          rootPath = workspaceFolder ? vscode.workspace.asRelativePath(workspaceRoot, false) : rootInfo.path;
+        }
+
+        log(`Workspace root path determined as: "${rootPath}"`);
         packages.push({
           name: rootInfo.name,
-          path: rootInfo.path,
+          path: rootPath,
           uri: workspaceRoot,
           isRoot: true,
         });
@@ -168,9 +181,13 @@ export async function getPackageAndDependencyPaths(packageName: string): Promise
 
   const allPaths: string[] = [];
 
-  // Add the target package path first
-  allPaths.push(targetPackage.path);
-  log(`Added target package path: ${targetPackage.path}`);
+  // Add the target package path first, but skip if it's the workspace root (current directory)
+  if (targetPackage.path && targetPackage.path !== '.') {
+    allPaths.push(targetPackage.path);
+    log(`Added target package path: ${targetPackage.path}`);
+  } else {
+    log(`Skipping target package path (workspace root): ${targetPackage.path}`);
+  }
 
   // Get workspace dependency paths
   const dependencyPaths = await getWorkspaceDependencyPathsFromPackage(packageName, packages);

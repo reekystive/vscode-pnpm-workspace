@@ -16,6 +16,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/), and this 
 
 - Refactored workspace dependencies architecture for better code reusability
 
+### Fixed
+
+- Fixed workspace root path calculation to ensure proper relative paths for search functionality
+
 ## [0.2.1] - 2025-07-23
 
 ### Added
