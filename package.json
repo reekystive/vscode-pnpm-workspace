@@ -48,7 +48,7 @@
     "package:dev": "vsce package --no-dependencies --pre-release",
     "run-extension": "code --extensionDevelopmentPath=. --disable-extensions",
     "run-web-extension": "code --extensionDevelopmentPath=. --extensionDevelopmentKind=web --disable-extensions",
-    "open-in-browser": "vscode-test-web --extensionDevelopmentPath=. .",
+    "open-in-browser": "vscode-test-web --extensionDevelopmentPath=.",
     "pretest": "pnpm run compile && pnpm run lint",
     "test": "vscode-test",
     "test-web": "pnpm run test --extensionDevelopmentKind=web",
