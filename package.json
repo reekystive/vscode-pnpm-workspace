@@ -45,6 +45,7 @@
     "compile": "pnpm run check-types && node esbuild.mjs",
     "lint": "eslint . --max-warnings=0 --report-unused-disable-directives --cache --cache-strategy=content --cache-location=./node_modules/.cache/eslint/eslintcache.json",
     "package": "pnpm run check-types && pnpm run lint && node esbuild.mjs --production",
+    "package:dev": "vsce package --no-dependencies --pre-release",
     "run-extension": "code --extensionDevelopmentPath=. --disable-extensions",
     "run-web-extension": "code --extensionDevelopmentPath=. --extensionDevelopmentKind=web --disable-extensions",
     "open-in-browser": "vscode-test-web --extensionDevelopmentPath=. .",
