@@ -11,51 +11,68 @@ export interface WorkspacePackage {
   isRoot: boolean;
 }
 
+// Built-in exclude patterns for package discovery
+const DEFAULT_EXCLUDE_PATTERNS = [
+  '**/node_modules/**',
+  '**/.git/**',
+  '**/dist/**',
+  '**/build/**',
+  '**/.next/**',
+  '**/coverage/**',
+] as const;
+
 /**
  * Discovers packages using VS Code findFiles with glob patterns
  */
 export async function discoverPackages(workspaceRoot: vscode.Uri, patterns: string[]): Promise<vscode.Uri[]> {
   log(`Discovering packages with patterns: ${patterns.join(', ')}`);
-  const packageUris: vscode.Uri[] = [];
   const workspaceFolder = vscode.workspace.getWorkspaceFolder(workspaceRoot);
 
   if (!workspaceFolder) {
     log(`No workspace folder found for root: ${workspaceRoot.toString()}`);
-    return packageUris;
+    return [];
   }
+
+  // Separate include patterns from exclude patterns
+  const includePatterns: string[] = [];
+  const excludePatterns: string[] = [...DEFAULT_EXCLUDE_PATTERNS];
 
   for (const pattern of patterns) {
     if (pattern.startsWith('!')) {
-      // Skip ignore patterns for now - could implement as exclude later
-      log(`Skipping ignore pattern: ${pattern}`);
-      continue;
-    }
-
-    try {
-      log(`Searching for packages with pattern: ${pattern}/package.json`);
-
-      // Use VS Code's findFiles API with relative patterns
-      const includePattern = new vscode.RelativePattern(workspaceFolder, `${pattern}/package.json`);
-      const packageJsonFiles = await vscode.workspace.findFiles(includePattern);
-
-      log(`Found ${packageJsonFiles.length} package.json files for pattern: ${pattern}`);
-      packageJsonFiles.forEach((file) => {
-        log(`  - ${file.toString()}`);
-      });
-
-      packageUris.push(...packageJsonFiles);
-    } catch (error) {
-      logError(`Failed to discover packages with pattern ${pattern}`, error);
+      // Add to exclude patterns (remove the '!' prefix)
+      excludePatterns.push(pattern.slice(1));
+      log(`Added exclude pattern: ${pattern.slice(1)}`);
+    } else {
+      // Add to include patterns with /package.json suffix
+      includePatterns.push(`${pattern}/package.json`);
     }
   }
 
-  // Remove duplicates
-  const uniqueUris = Array.from(new Set(packageUris.map((uri) => uri.toString()))).map((uriString) =>
-    vscode.Uri.parse(uriString)
-  );
+  if (includePatterns.length === 0) {
+    log('No include patterns found');
+    return [];
+  }
 
-  log(`Discovered ${uniqueUris.length} unique package.json files`);
-  return uniqueUris;
+  try {
+    log(`Searching for packages with patterns: {${includePatterns.join(',')}}`);
+    log(`Excluding patterns: {${excludePatterns.join(',')}}`);
+
+    // Use VS Code's findFiles API with combined glob pattern
+    const includeGlob = new vscode.RelativePattern(workspaceFolder, `{${includePatterns.join(',')}}`);
+    const excludeGlob = `{${excludePatterns.join(',')}}`;
+
+    const packageJsonFiles = await vscode.workspace.findFiles(includeGlob, excludeGlob);
+
+    log(`Found ${packageJsonFiles.length} package.json files`);
+    packageJsonFiles.forEach((file) => {
+      log(`  - ${file.toString()}`);
+    });
+
+    return packageJsonFiles;
+  } catch (error) {
+    logError('Failed to discover packages', error);
+    return [];
+  }
 }
 
 /**
