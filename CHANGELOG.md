@@ -9,7 +9,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/), and this 
 ### Added
 
 - Initial release of pnpm Workspace extension
-- Command: Copy Workspace Dependencies of... - Select a package and copy its workspace dependencies to clipboard
+- Command: Copy Workspace Dependencies Of... - Select a package and copy its workspace dependencies to clipboard
 - Command: Re-scan Workspace Packages - Refresh the package cache when workspace changes
 - Configuration options to include/exclude different dependency types:
   - Production dependencies (`pnpmWorkspace.copyWorkspaceDependencies.includeDependencies`)

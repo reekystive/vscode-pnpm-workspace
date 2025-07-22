@@ -25,13 +25,13 @@ More productivity tools are coming soon! Future releases will include:
 
 This extension contributes the following commands:
 
-- `pnpm Workspace: Copy Workspace Dependencies of...` - Opens a quick picker to select a package and copies its workspace dependencies
+- `pnpm Workspace: Copy Workspace Dependencies Of...` - Opens a quick picker to select a package and copies its workspace dependencies
 - `pnpm Workspace: Re-scan Workspace Packages` - Clears the package cache and re-scans the workspace
 
 ## Usage
 
 1. Open a pnpm workspace (a project with `pnpm-workspace.yaml`)
-2. Run `pnpm Workspace: Copy Workspace Dependencies of...` from the Command Palette
+2. Run `pnpm Workspace: Copy Workspace Dependencies Of...` from the Command Palette
 3. Select the package you want to get dependencies for
 4. The workspace dependencies will be copied to your clipboard, separated by newlines
 

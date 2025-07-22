@@ -62,7 +62,7 @@
     "commands": [
       {
         "command": "pnpm-workspace.copyWorkspaceDependenciesOf",
-        "title": "pnpm Workspace: Copy Workspace Dependencies of...",
+        "title": "pnpm Workspace: Copy Workspace Dependencies Of...",
         "shortTitle": "Copy Workspace Dependencies"
       },
       {

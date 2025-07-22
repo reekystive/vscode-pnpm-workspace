@@ -8,7 +8,7 @@ import {
 } from './pnpm-workspace.js';
 
 export function registerCommands(context: vscode.ExtensionContext) {
-  // Copy Workspace Dependencies of...
+  // Copy Workspace Dependencies Of...
   const copyWorkspaceDependencies = vscode.commands.registerCommand(
     'pnpm-workspace.copyWorkspaceDependenciesOf',
     async () => {
