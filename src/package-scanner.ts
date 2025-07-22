@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { Utils } from 'vscode-uri';
 import { z } from 'zod';
+import { DEFAULT_EXCLUDE_PATTERNS } from './constants.js';
 import { log, logError } from './logger.js';
 import { PackageJsonSchema } from './schemas.js';
 
@@ -10,16 +11,6 @@ export interface WorkspacePackage {
   uri: vscode.Uri;
   isRoot: boolean;
 }
-
-// Built-in exclude patterns for package discovery
-const DEFAULT_EXCLUDE_PATTERNS = [
-  '**/node_modules/**',
-  '**/.git/**',
-  '**/dist/**',
-  '**/build/**',
-  '**/.next/**',
-  '**/coverage/**',
-] as const;
 
 /**
  * Discovers packages using VS Code findFiles with glob patterns

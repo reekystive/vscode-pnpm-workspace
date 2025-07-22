@@ -1,6 +1,7 @@
 import * as yaml from 'js-yaml';
 import * as vscode from 'vscode';
 import { z } from 'zod';
+import { DEFAULT_EXCLUDE_PATTERNS } from './constants.js';
 import { log, logAndShowError, logError } from './logger.js';
 import { WorkspaceConfigSchema } from './schemas.js';
 
@@ -21,10 +22,14 @@ export async function findPnpmWorkspaceFiles(): Promise<vscode.Uri[]> {
   for (const folder of workspaceFolders) {
     log(`Searching in workspace folder: ${folder.name} (${folder.uri.toString()})`);
     try {
+      // Use exclude patterns to avoid searching in unwanted directories
+      const excludeGlob = `{${DEFAULT_EXCLUDE_PATTERNS.join(',')}}`;
+      log(`Excluding patterns: {${DEFAULT_EXCLUDE_PATTERNS.join(',')}}`);
+
       // Look for pnpm-workspace.yaml in each workspace folder
       const files = await vscode.workspace.findFiles(
         new vscode.RelativePattern(folder, 'pnpm-workspace.yaml'),
-        null, // no exclusions
+        excludeGlob,
         1 // only need one per workspace
       );
 
