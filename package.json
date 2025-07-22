@@ -1,7 +1,7 @@
 {
   "name": "pnpm-workspace",
   "displayName": "pnpm Workspace",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "description": "Life-saving extension for pnpm workspace, especially for large-scale monorepo projects",
   "categories": [
     "Other"
