@@ -54,11 +54,26 @@ async function main() {
     plugins: [esbuildProblemMatcherPlugin],
   });
 
+  // Build for tests
+  const testCtx = await esbuild.context({
+    entryPoints: ['src/test/extension.test.ts'],
+    bundle: true,
+    format: 'cjs',
+    minify: false,
+    sourcemap: true,
+    sourcesContent: false,
+    platform: 'node',
+    outfile: 'dist-test/extension.test.cjs',
+    external: ['vscode'],
+    logLevel: 'silent',
+    plugins: [esbuildProblemMatcherPlugin],
+  });
+
   if (watch) {
-    await Promise.all([nodeCtx.watch(), webCtx.watch()]);
+    await Promise.all([nodeCtx.watch(), webCtx.watch(), testCtx.watch()]);
   } else {
-    await Promise.all([nodeCtx.rebuild(), webCtx.rebuild()]);
-    await Promise.all([nodeCtx.dispose(), webCtx.dispose()]);
+    await Promise.all([nodeCtx.rebuild(), webCtx.rebuild(), testCtx.rebuild()]);
+    await Promise.all([nodeCtx.dispose(), webCtx.dispose(), testCtx.dispose()]);
   }
 }
 

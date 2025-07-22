@@ -26,7 +26,7 @@ export function registerCommands(context: vscode.ExtensionContext) {
 
         // Create QuickPick items
         const items = packages.map((pkg: WorkspacePackage) => ({
-          label: pkg.isRoot ? `${pkg.name} (workspace root)` : pkg.name,
+          label: pkg.isRoot ? `${pkg.name} (Workspace Root)` : pkg.name,
           description: pkg.path,
           package: pkg,
         }));
