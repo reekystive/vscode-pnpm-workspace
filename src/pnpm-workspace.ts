@@ -2,7 +2,10 @@ import * as vscode from 'vscode';
 import { Utils } from 'vscode-uri';
 import { log } from './logger.js';
 import { WorkspacePackage, discoverPackages, loadPackageInfo } from './package-scanner.js';
-import { getWorkspaceDependencies as getWorkspaceDependenciesFromPackage } from './workspace-dependencies.js';
+import {
+  getWorkspaceDependencies as getWorkspaceDependenciesFromPackage,
+  getWorkspaceDependencyNames as getWorkspaceDependencyNamesFromPackage,
+} from './workspace-dependencies.js';
 import { findPnpmWorkspaceFiles, loadWorkspaceConfig } from './workspace-discovery.js';
 
 // Re-export WorkspacePackage interface for external use
@@ -126,7 +129,15 @@ export function clearPackageCache(): void {
 }
 
 /**
- * Gets workspace dependencies for a specific package
+ * Gets workspace dependency names for a specific package
+ */
+export async function getWorkspaceDependencyNames(packageName: string): Promise<string[]> {
+  const packages = await getWorkspacePackages();
+  return await getWorkspaceDependencyNamesFromPackage(packageName, packages);
+}
+
+/**
+ * Gets workspace dependency paths for a specific package
  */
 export async function getWorkspaceDependencies(packageName: string): Promise<string[]> {
   const packages = await getWorkspacePackages();

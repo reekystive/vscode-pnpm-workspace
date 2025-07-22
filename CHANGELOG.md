@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD024 -->
+
 # Change Log
 
 All notable changes to the pnpm Workspace Dependencies extension will be documented in this file.
@@ -5,6 +7,16 @@ All notable changes to the pnpm Workspace Dependencies extension will be documen
 The format is based on [Keep a Changelog](http://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+
+### Added
+
+- Command: Copy Workspace Dependency Names Of... - Select a package and copy its workspace dependency names to clipboard
+- Command: Copy Workspace Dependency Paths Of... - Select a package and copy its workspace dependency paths to clipboard
+
+### Changed
+
+- Command: Copy Workspace Dependencies Of... - Now renamed to Copy Workspace Dependency Paths Of...
+- Workspace package sorting - Scoped packages (@-prefixed) now come after regular packages
 
 ## [0.2.0] - 2025-07-23
 
@@ -21,3 +33,5 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/), and this 
 - Automatic workspace scanning with caching for performance
 - Detailed logging for debugging workspace discovery
 - Workspace package sorting - Workspace root always comes first
+- Immediate loading states for better user experience
+- Progress notifications for long-running operations

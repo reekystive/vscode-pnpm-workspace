@@ -3,14 +3,15 @@ import { log, logError } from './logger.js';
 import {
   clearPackageCache,
   getWorkspaceDependencies,
+  getWorkspaceDependencyNames,
   getWorkspacePackages,
   type WorkspacePackage,
 } from './pnpm-workspace.js';
 
 export function registerCommands(context: vscode.ExtensionContext) {
-  // Copy Workspace Dependencies Of...
-  const copyWorkspaceDependencies = vscode.commands.registerCommand(
-    'pnpm-workspace.copyWorkspaceDependenciesOf',
+  // Copy Workspace Dependency Names Of...
+  const copyWorkspaceDependencyNames = vscode.commands.registerCommand(
+    'pnpm-workspace.copyWorkspaceDependencyNamesOf',
     async () => {
       log('=================================');
       log('Executing copyWorkspaceDependencies command');
@@ -57,6 +58,15 @@ export function registerCommands(context: vscode.ExtensionContext) {
             if (!a.isRoot && b.isRoot) {
               return 1;
             }
+            // @ packages come after regular packages
+            const aStartsWithAt = a.name.startsWith('@');
+            const bStartsWithAt = b.name.startsWith('@');
+            if (!aStartsWithAt && bStartsWithAt) {
+              return -1;
+            }
+            if (aStartsWithAt && !bStartsWithAt) {
+              return 1;
+            }
             // Otherwise sort alphabetically by name
             return a.name.localeCompare(b.name);
           })
@@ -85,22 +95,128 @@ export function registerCommands(context: vscode.ExtensionContext) {
           return;
         }
 
-        const dependencies = await getWorkspaceDependencies(selected.package.name);
-        if (dependencies.length === 0) {
+        const dependencyNames = await getWorkspaceDependencyNames(selected.package.name);
+        if (dependencyNames.length === 0) {
           vscode.window.showInformationMessage(`Package "${selected.package.name}" has no workspace dependencies.`);
           return;
         }
 
-        const dependenciesText = dependencies.join('\n');
-        await vscode.env.clipboard.writeText(dependenciesText);
+        const dependencyNamesText = dependencyNames.join('\n');
+        await vscode.env.clipboard.writeText(dependencyNamesText);
 
-        log(`Copied dependencies for ${selected.package.name}: ${dependencies.join(', ')}`);
+        log(`Copied dependency names for ${selected.package.name}: ${dependencyNames.join(', ')}`);
         vscode.window.showInformationMessage(
-          `Copied ${dependencies.length} workspace dependencies for "${selected.package.name}" to clipboard.`
+          `Copied ${dependencyNames.length} workspace dependency names for "${selected.package.name}" to clipboard.`
         );
       } catch (error) {
         logError('Failed to copy workspace dependencies', error);
         vscode.window.showErrorMessage('Failed to copy workspace dependencies');
+      }
+    }
+  );
+
+  // Copy Workspace Dependency Paths Of...
+  const copyWorkspaceDependencyPaths = vscode.commands.registerCommand(
+    'pnpm-workspace.copyWorkspaceDependencyPathsOf',
+    async () => {
+      log('=================================');
+      log('Executing copyWorkspaceDependencyPaths command');
+
+      try {
+        // Create and show QuickPick immediately with loading state
+        const quickPick = vscode.window.createQuickPick();
+        quickPick.placeholder = 'Select a package to copy its workspace dependency paths';
+        quickPick.matchOnDescription = true;
+        quickPick.busy = true;
+        quickPick.items = [{ label: 'Loading packages...', description: 'Scanning workspace' }];
+        quickPick.show();
+
+        let packages: WorkspacePackage[];
+        try {
+          // Load packages in background
+          packages = await getWorkspacePackages();
+        } catch (error) {
+          quickPick.hide();
+          logError('Failed to load workspace packages', error);
+          vscode.window.showErrorMessage('Failed to load workspace packages');
+          return;
+        }
+
+        if (packages.length === 0) {
+          quickPick.hide();
+          vscode.window.showErrorMessage(
+            'No pnpm workspace packages found. Make sure you have a pnpm-workspace.yaml file.'
+          );
+          return;
+        }
+
+        // Update QuickPick with actual packages
+        interface QuickPickItemWithPackage extends vscode.QuickPickItem {
+          package: WorkspacePackage;
+        }
+
+        const items: QuickPickItemWithPackage[] = packages
+          .sort((a, b) => {
+            // Workspace root always comes first
+            if (a.isRoot && !b.isRoot) {
+              return -1;
+            }
+            if (!a.isRoot && b.isRoot) {
+              return 1;
+            }
+            // @ packages come after regular packages
+            const aStartsWithAt = a.name.startsWith('@');
+            const bStartsWithAt = b.name.startsWith('@');
+            if (!aStartsWithAt && bStartsWithAt) {
+              return -1;
+            }
+            if (aStartsWithAt && !bStartsWithAt) {
+              return 1;
+            }
+            // Otherwise sort alphabetically by name
+            return a.name.localeCompare(b.name);
+          })
+          .map((pkg: WorkspacePackage) => ({
+            label: pkg.isRoot ? `${pkg.name} (Workspace Root)` : pkg.name,
+            description: pkg.path,
+            package: pkg,
+          }));
+
+        quickPick.busy = false;
+        quickPick.items = items;
+
+        // Wait for user selection
+        const selected = await new Promise<QuickPickItemWithPackage | undefined>((resolve) => {
+          quickPick.onDidAccept(() => {
+            const selection = quickPick.selectedItems[0] as QuickPickItemWithPackage;
+            quickPick.hide();
+            resolve(selection);
+          });
+          quickPick.onDidHide(() => {
+            resolve(undefined);
+          });
+        });
+
+        if (!selected) {
+          return;
+        }
+
+        const dependencyPaths = await getWorkspaceDependencies(selected.package.name);
+        if (dependencyPaths.length === 0) {
+          vscode.window.showInformationMessage(`Package "${selected.package.name}" has no workspace dependencies.`);
+          return;
+        }
+
+        const dependencyPathsText = dependencyPaths.join('\n');
+        await vscode.env.clipboard.writeText(dependencyPathsText);
+
+        log(`Copied dependency paths for ${selected.package.name}: ${dependencyPaths.join(', ')}`);
+        vscode.window.showInformationMessage(
+          `Copied ${dependencyPaths.length} workspace dependency paths for "${selected.package.name}" to clipboard.`
+        );
+      } catch (error) {
+        logError('Failed to copy workspace dependency paths', error);
+        vscode.window.showErrorMessage('Failed to copy workspace dependency paths');
       }
     }
   );
@@ -139,5 +255,5 @@ export function registerCommands(context: vscode.ExtensionContext) {
     }
   );
 
-  context.subscriptions.push(copyWorkspaceDependencies, rescanWorkspacePackages);
+  context.subscriptions.push(copyWorkspaceDependencyNames, copyWorkspaceDependencyPaths, rescanWorkspacePackages);
 }

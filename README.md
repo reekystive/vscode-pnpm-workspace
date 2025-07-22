@@ -4,9 +4,10 @@ A comprehensive VS Code extension providing productivity tools for pnpm workspac
 
 ## 🚀 Current Features
 
-**Copy Workspace Dependencies** - The first of many workspace productivity tools!
+**Copy Workspace Dependencies** - Two powerful ways to extract workspace dependency information!
 
-- **Copy Workspace Dependencies**: Select any package in your pnpm workspace and copy its workspace dependencies to clipboard, with each dependency on a new line
+- **Copy Workspace Dependency Names**: Select any package in your pnpm workspace and copy its workspace dependency names to clipboard, with each dependency on a new line
+- **Copy Workspace Dependency Paths**: Select any package in your pnpm workspace and copy its workspace dependency paths to clipboard, with each dependency path on a new line
 - **Re-scan Workspace**: Manually refresh the workspace package cache when needed
 - **Web Extension Support**: Works in VS Code for the Web and remote development environments
 - **Workspace Root Support**: Includes the workspace root package with special marking
@@ -25,15 +26,25 @@ More productivity tools are coming soon! Future releases will include:
 
 This extension contributes the following commands:
 
-- `pnpm Workspace: Copy Workspace Dependencies Of...` - Opens a quick picker to select a package and copies its workspace dependencies
+- `pnpm Workspace: Copy Workspace Dependency Names Of...` - Opens a quick picker to select a package and copies its workspace dependency names
+- `pnpm Workspace: Copy Workspace Dependency Paths Of...` - Opens a quick picker to select a package and copies its workspace dependency paths
 - `pnpm Workspace: Re-scan Workspace Packages` - Clears the package cache and re-scans the workspace
 
 ## Usage
 
+### Copy Workspace Dependency Names
+
 1. Open a pnpm workspace (a project with `pnpm-workspace.yaml`)
-2. Run `pnpm Workspace: Copy Workspace Dependencies Of...` from the Command Palette
+2. Run `pnpm Workspace: Copy Workspace Dependency Names Of...` from the Command Palette
 3. Select the package you want to get dependencies for
-4. The workspace dependencies will be copied to your clipboard, separated by newlines
+4. The workspace dependency names will be copied to your clipboard, separated by newlines
+
+### Copy Workspace Dependency Paths
+
+1. Open a pnpm workspace (a project with `pnpm-workspace.yaml`)
+2. Run `pnpm Workspace: Copy Workspace Dependency Paths Of...` from the Command Palette
+3. Select the package you want to get dependency paths for
+4. The workspace dependency paths will be copied to your clipboard, separated by newlines
 
 The extension automatically scans your workspace on first use and caches the results. Use the re-scan command if you've added or removed packages.
 

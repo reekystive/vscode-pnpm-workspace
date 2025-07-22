@@ -61,9 +61,14 @@
   "contributes": {
     "commands": [
       {
-        "command": "pnpm-workspace.copyWorkspaceDependenciesOf",
-        "title": "pnpm Workspace: Copy Workspace Dependencies Of...",
-        "shortTitle": "Copy Workspace Dependencies"
+        "command": "pnpm-workspace.copyWorkspaceDependencyNamesOf",
+        "title": "pnpm Workspace: Copy Workspace Dependency Names Of...",
+        "shortTitle": "Copy Workspace Dependency Names"
+      },
+      {
+        "command": "pnpm-workspace.copyWorkspaceDependencyPathsOf",
+        "title": "pnpm Workspace: Copy Workspace Dependency Paths Of...",
+        "shortTitle": "Copy Workspace Dependency Paths"
       },
       {
         "command": "pnpm-workspace.rescanWorkspacePackages",
