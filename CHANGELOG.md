@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/), and this 
 
 ## [Unreleased]
 
+## [0.2.1] - 2025-07-23
+
 ### Added
 
 - Command: Copy Workspace Dependency Names Of... - Select a package and copy its workspace dependency names to clipboard
