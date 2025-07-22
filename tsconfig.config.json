@@ -19,6 +19,7 @@
     "noUnusedParameters": true,
     "useUnknownInCatchVariables": true,
     "composite": true,
+    "noEmitOnError": true,
     "rootDir": ".",
     "outDir": "./node_modules/.cache/tsc-config",
     "tsBuildInfoFile": "./node_modules/.cache/tsc-config/tsconfig.config.tsbuildinfo",
