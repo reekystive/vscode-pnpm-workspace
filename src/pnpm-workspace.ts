@@ -5,6 +5,7 @@ import { WorkspacePackage, discoverPackages, loadPackageInfo } from './package-s
 import {
   getWorkspaceDependencies as getWorkspaceDependenciesFromPackage,
   getWorkspaceDependencyNames as getWorkspaceDependencyNamesFromPackage,
+  getWorkspaceDependencyPaths as getWorkspaceDependencyPathsFromPackage,
 } from './workspace-dependencies.js';
 import { findPnpmWorkspaceFiles, loadWorkspaceConfig } from './workspace-discovery.js';
 
@@ -137,9 +138,44 @@ export async function getWorkspaceDependencyNames(packageName: string): Promise<
 }
 
 /**
- * Gets workspace dependency paths for a specific package
+ * Gets workspace dependencies as objects with name and path
  */
-export async function getWorkspaceDependencies(packageName: string): Promise<string[]> {
+export async function getWorkspaceDependencies(packageName: string): Promise<{ name: string; path: string }[]> {
   const packages = await getWorkspacePackages();
   return await getWorkspaceDependenciesFromPackage(packageName, packages);
+}
+
+/**
+ * Gets workspace dependency paths only
+ */
+export async function getWorkspaceDependencyPaths(packageName: string): Promise<string[]> {
+  const packages = await getWorkspacePackages();
+  return await getWorkspaceDependencyPathsFromPackage(packageName, packages);
+}
+
+/**
+ * Gets all paths for a package and its workspace dependencies (for searching)
+ */
+export async function getPackageAndDependencyPaths(packageName: string): Promise<string[]> {
+  const packages = await getWorkspacePackages();
+
+  // Find the target package
+  const targetPackage = packages.find((pkg) => pkg.name === packageName);
+  if (!targetPackage) {
+    log(`Target package ${packageName} not found in workspace`);
+    return [];
+  }
+
+  const allPaths: string[] = [];
+
+  // Add the target package path first
+  allPaths.push(targetPackage.path);
+  log(`Added target package path: ${targetPackage.path}`);
+
+  // Get workspace dependency paths
+  const dependencyPaths = await getWorkspaceDependencyPathsFromPackage(packageName, packages);
+  allPaths.push(...dependencyPaths);
+
+  log(`Final paths for search (${packageName} + dependencies): [${allPaths.join(', ')}]`);
+  return allPaths;
 }

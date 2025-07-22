@@ -4,10 +4,11 @@ A comprehensive VS Code extension providing productivity tools for pnpm workspac
 
 ## 🚀 Current Features
 
-**Copy Workspace Dependencies** - Two powerful ways to extract workspace dependency information!
+**Workspace Productivity Tools** - Comprehensive utilities for pnpm workspace projects!
 
 - **Copy Workspace Dependency Names**: Select any package in your pnpm workspace and copy its workspace dependency names to clipboard, with each dependency on a new line
 - **Copy Workspace Dependency Paths**: Select any package in your pnpm workspace and copy its workspace dependency paths to clipboard, with each dependency path on a new line
+- **Search in Package and Workspace Dependencies**: Select a package and open VS Code search with the package and all its workspace dependencies pre-filled in the search scope
 - **Re-scan Workspace**: Manually refresh the workspace package cache when needed
 - **Web Extension Support**: Works in VS Code for the Web and remote development environments
 - **Workspace Root Support**: Includes the workspace root package with special marking
@@ -28,6 +29,7 @@ This extension contributes the following commands:
 
 - `pnpm Workspace: Copy Workspace Dependency Names Of...` - Opens a quick picker to select a package and copies its workspace dependency names
 - `pnpm Workspace: Copy Workspace Dependency Paths Of...` - Opens a quick picker to select a package and copies its workspace dependency paths
+- `pnpm Workspace: Search in Package and Workspace Dependencies...` - Opens a quick picker to select a package and opens search with the package and its dependencies
 - `pnpm Workspace: Re-scan Workspace Packages` - Clears the package cache and re-scans the workspace
 
 ## Usage
@@ -45,6 +47,14 @@ This extension contributes the following commands:
 2. Run `pnpm Workspace: Copy Workspace Dependency Paths Of...` from the Command Palette
 3. Select the package you want to get dependency paths for
 4. The workspace dependency paths will be copied to your clipboard, separated by newlines
+
+### Search in Package and Workspace Dependencies
+
+1. Open a pnpm workspace (a project with `pnpm-workspace.yaml`)
+2. Run `pnpm Workspace: Search in Package and Workspace Dependencies...` from the Command Palette
+3. Select the package you want to search in along with its dependencies
+4. VS Code's search panel will open with the package and its workspace dependencies pre-filled in the "files to include" field
+5. Enter your search term and the search will be scoped to only those packages
 
 The extension automatically scans your workspace on first use and caches the results. Use the re-scan command if you've added or removed packages.
 

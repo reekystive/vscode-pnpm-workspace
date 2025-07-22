@@ -71,6 +71,11 @@
         "shortTitle": "Copy Workspace Dependency Paths"
       },
       {
+        "command": "pnpm-workspace.searchInPackageAndWorkspaceDependencies",
+        "title": "pnpm Workspace: Search in Package and Workspace Dependencies...",
+        "shortTitle": "Search in Package and Dependencies"
+      },
+      {
         "command": "pnpm-workspace.rescanWorkspacePackages",
         "title": "pnpm Workspace: Re-scan Workspace Packages",
         "shortTitle": "Re-scan Workspace Packages"
