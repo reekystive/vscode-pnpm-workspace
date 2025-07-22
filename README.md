@@ -16,7 +16,7 @@ A comprehensive VS Code extension providing productivity tools for pnpm workspac
 More productivity tools are coming soon! Future releases will include:
 
 - Package dependency visualization
-- Workspace navigation shortcuts  
+- Workspace navigation shortcuts
 - Build script management across packages
 - Inter-package dependency analysis
 - And many more workspace utilities...
@@ -41,11 +41,11 @@ The extension automatically scans your workspace on first use and caches the res
 
 You can customize which types of dependencies to include when copying workspace dependencies:
 
-| Setting | Default | Description |
-|---------|---------|-------------|
-| `pnpmWorkspace.copyWorkspaceDependencies.includeDependencies` | `true` | Include production dependencies |
-| `pnpmWorkspace.copyWorkspaceDependencies.includeDevDependencies` | `true` | Include development dependencies |
-| `pnpmWorkspace.copyWorkspaceDependencies.includeOptionalDependencies` | `true` | Include optional dependencies |
+| Setting                                                               | Default | Description                      |
+| --------------------------------------------------------------------- | ------- | -------------------------------- |
+| `pnpmWorkspace.copyWorkspaceDependencies.includeDependencies`         | `true`  | Include production dependencies  |
+| `pnpmWorkspace.copyWorkspaceDependencies.includeDevDependencies`      | `true`  | Include development dependencies |
+| `pnpmWorkspace.copyWorkspaceDependencies.includeOptionalDependencies` | `true`  | Include optional dependencies    |
 
 To configure these settings:
 

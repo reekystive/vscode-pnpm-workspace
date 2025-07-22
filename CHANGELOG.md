@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/), and this 
 
 ## [Unreleased]
 
+## [0.2.0] - 2025-07-23
+
 ### Added
 
 - Initial release of pnpm Workspace extension
@@ -18,3 +20,4 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/), and this 
 - Web extension support for VS Code for Web and remote development
 - Automatic workspace scanning with caching for performance
 - Detailed logging for debugging workspace discovery
+- Workspace package sorting - Workspace root always comes first
