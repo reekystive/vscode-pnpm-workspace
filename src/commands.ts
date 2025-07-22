@@ -49,7 +49,17 @@ export function registerCommands(context: vscode.ExtensionContext) {
         }
 
         const items: QuickPickItemWithPackage[] = packages
-          .sort((a, b) => a.name.localeCompare(b.name))
+          .sort((a, b) => {
+            // Workspace root always comes first
+            if (a.isRoot && !b.isRoot) {
+              return -1;
+            }
+            if (!a.isRoot && b.isRoot) {
+              return 1;
+            }
+            // Otherwise sort alphabetically by name
+            return a.name.localeCompare(b.name);
+          })
           .map((pkg: WorkspacePackage) => ({
             label: pkg.isRoot ? `${pkg.name} (Workspace Root)` : pkg.name,
             description: pkg.path,
