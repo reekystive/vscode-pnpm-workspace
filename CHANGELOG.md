@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/), and this 
 
 ## [Unreleased]
 
+## [0.2.3] - 2025-07-23
+
 ### Fixed
 
 - Replaced Buffer.from with TextDecoder for better web extension compatibility
