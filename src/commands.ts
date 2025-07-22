@@ -16,24 +16,59 @@ export function registerCommands(context: vscode.ExtensionContext) {
       log('Executing copyWorkspaceDependencies command');
 
       try {
-        const packages = await getWorkspacePackages();
+        // Create and show QuickPick immediately with loading state
+        const quickPick = vscode.window.createQuickPick();
+        quickPick.placeholder = 'Select a package to copy its workspace dependencies';
+        quickPick.matchOnDescription = true;
+        quickPick.busy = true;
+        quickPick.items = [{ label: 'Loading packages...', description: 'Scanning workspace' }];
+        quickPick.show();
+
+        let packages: WorkspacePackage[];
+        try {
+          // Load packages in background
+          packages = await getWorkspacePackages();
+        } catch (error) {
+          quickPick.hide();
+          logError('Failed to load workspace packages', error);
+          vscode.window.showErrorMessage('Failed to load workspace packages');
+          return;
+        }
+
         if (packages.length === 0) {
+          quickPick.hide();
           vscode.window.showErrorMessage(
             'No pnpm workspace packages found. Make sure you have a pnpm-workspace.yaml file.'
           );
           return;
         }
 
-        // Create QuickPick items
-        const items = packages.map((pkg: WorkspacePackage) => ({
-          label: pkg.isRoot ? `${pkg.name} (Workspace Root)` : pkg.name,
-          description: pkg.path,
-          package: pkg,
-        }));
+        // Update QuickPick with actual packages
+        interface QuickPickItemWithPackage extends vscode.QuickPickItem {
+          package: WorkspacePackage;
+        }
 
-        const selected = await vscode.window.showQuickPick(items, {
-          placeHolder: 'Select a package to copy its workspace dependencies',
-          matchOnDescription: true,
+        const items: QuickPickItemWithPackage[] = packages
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .map((pkg: WorkspacePackage) => ({
+            label: pkg.isRoot ? `${pkg.name} (Workspace Root)` : pkg.name,
+            description: pkg.path,
+            package: pkg,
+          }));
+
+        quickPick.busy = false;
+        quickPick.items = items;
+
+        // Wait for user selection
+        const selected = await new Promise<QuickPickItemWithPackage | undefined>((resolve) => {
+          quickPick.onDidAccept(() => {
+            const selection = quickPick.selectedItems[0] as QuickPickItemWithPackage;
+            quickPick.hide();
+            resolve(selection);
+          });
+          quickPick.onDidHide(() => {
+            resolve(undefined);
+          });
         });
 
         if (!selected) {
@@ -67,16 +102,30 @@ export function registerCommands(context: vscode.ExtensionContext) {
       log('=================================');
       log('Executing rescanWorkspacePackages command');
 
-      try {
-        clearPackageCache();
-        const packages = await getWorkspacePackages();
+      await vscode.window.withProgress(
+        {
+          location: vscode.ProgressLocation.Notification,
+          title: 'Re-scanning pnpm workspace',
+          cancellable: false,
+        },
+        async (progress, _token) => {
+          try {
+            clearPackageCache();
+            log('Cleared package cache');
 
-        log(`Re-scanned workspace packages: found ${packages.length} packages`);
-        vscode.window.showInformationMessage(`Re-scanned pnpm workspace: found ${packages.length} packages.`);
-      } catch (error) {
-        logError('Failed to re-scan workspace packages', error);
-        vscode.window.showErrorMessage('Failed to re-scan workspace packages');
-      }
+            progress.report({ increment: 30, message: 'Scanning packages...' });
+            const packages = await getWorkspacePackages();
+            progress.report({ increment: 100, message: `Found ${packages.length} packages` });
+
+            log(`Re-scanned workspace packages: found ${packages.length} packages`);
+            vscode.window.showInformationMessage(`Re-scanned pnpm workspace: found ${packages.length} packages.`);
+          } catch (error) {
+            logError('Failed to re-scan workspace packages', error);
+            vscode.window.showErrorMessage('Failed to re-scan workspace packages. Check output for details.');
+            throw error;
+          }
+        }
+      );
     }
   );
 
