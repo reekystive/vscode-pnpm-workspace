@@ -15,12 +15,12 @@ This extension is built with:
 - TypeScript
 - VS Code Extension API
 - ESBuild for bundling
-- PNPM for package management
+- pnpm for package management
 
 ### Prerequisites
 
 - Node.js >= 22.15.0
-- PNPM 10.13.1+
+- pnpm 10.13.1+
 - VS Code
 
 ### Recommended Extensions
@@ -122,7 +122,7 @@ pnpm run watch-tests
 ```plaintext
 ├── src/
 │   ├── extension.ts         # Main extension entry point
-│   ├── logger.ts           # Logging functionality  
+│   ├── logger.ts           # Logging functionality
 │   ├── commands.ts         # Command implementations
 │   ├── pnpm-workspace.ts   # pnpm workspace functionality
 │   └── test/               # Test files
