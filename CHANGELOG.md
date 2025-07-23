@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/), and this 
 
 ## [Unreleased]
 
+## [0.2.4] - 2025-07-23
+
 ### Changed
 
 - Improved search path formatting - Changed separator from comma-space (', ') to curly braces with glob pattern (`{a,b,c}/**/*`) for better file matching
