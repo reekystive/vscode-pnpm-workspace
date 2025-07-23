@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD036 -->
+
 # Contributing to pnpm Workspace 🤝
 
 Thank you for your interest in contributing to pnpm Workspace! This document provides guidelines and information for contributors.
@@ -121,19 +123,22 @@ pnpm run watch-tests
 
 ```plaintext
 ├── src/
-│   ├── extension.ts         # Main extension entry point
-│   ├── logger.ts           # Logging functionality
-│   ├── commands.ts         # Command implementations
-│   ├── pnpm-workspace.ts   # pnpm workspace functionality
-│   └── test/               # Test files
-│       └── fixtures/       # Test fixture workspaces
-│           └── simple-workspace/  # Basic pnpm workspace for testing
-├── dist/                   # Compiled extension bundles
-├── out/                    # TypeScript output
-├── package.json           # Extension manifest
-├── tsconfig.json         # TypeScript configuration
-├── esbuild.mjs           # ESBuild configuration (dual build)
-└── eslint.config.mjs     # ESLint configuration
+│   ├── extension.ts                   # Main extension entry point
+│   ├── logger.ts                     # Logging functionality
+│   ├── commands.ts                   # Command implementations
+│   ├── pnpm-workspace.ts             # pnpm workspace functionality
+│   ├── package-scanner.ts            # Package discovery logic
+│   ├── workspace-discovery.ts        # Workspace file discovery
+│   ├── virtual-workspace-workaround.ts # Virtual workspace compatibility layer
+│   └── test/                         # Test files
+│       └── fixtures/                 # Test fixture workspaces
+│           └── simple-workspace/     # Basic pnpm workspace for testing
+├── dist/                             # Compiled extension bundles
+├── out/                              # TypeScript output
+├── package.json                      # Extension manifest
+├── tsconfig.json                     # TypeScript configuration
+├── esbuild.mjs                       # ESBuild configuration (dual build)
+└── eslint.config.mjs                 # ESLint configuration
 ```
 
 ### Architecture & Cross-Platform Support
@@ -145,6 +150,32 @@ The extension is designed with modularity and cross-platform compatibility in mi
 - **Virtual Workspace Support**: Compatible with virtual file systems and remote workspaces
 - **Dual Build System**: Generates both Node.js and Web bundles from the same source
 - **URI-based Operations**: All file operations use VS Code URIs for cross-platform compatibility
+
+#### Known Issues & Workarounds
+
+**Virtual Workspace File Discovery Issue**
+
+Due to [VSCode issue #249197](https://github.com/microsoft/vscode/issues/249197), `vscode.workspace.findFiles` doesn't work properly in virtual workspaces (vscode-test-web, GitHub Codespaces, etc.).
+
+**Impact**: Complex glob patterns like `{packages/*/package.json,scripts/*/package.json}` return 0 results even when files exist.
+
+**Our Solution**:
+
+- The extension implements a dual-strategy approach:
+  1. **Primary**: Use `findFiles` API for regular file system workspaces (fast and efficient)
+  2. **Fallback**: Use manual directory traversal with `fs.readDirectory` and `fs.stat` APIs for virtual workspaces
+- Detection is automatic based on URI scheme (`file://` vs others)
+- See `src/package-scanner.ts` and `src/workspace-discovery.ts` for implementation details
+
+**Testing Virtual Workspaces**:
+
+```bash
+# Test in browser environment
+npm run open-in-browser
+
+# Or use vscode-test-web directly
+npx vscode-test-web --extensionDevelopmentPath=.
+```
 
 ### Key Functions
 

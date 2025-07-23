@@ -34,7 +34,7 @@ export async function scanWorkspacePackages(): Promise<WorkspacePackage[]> {
 
   // Process each workspace
   for (const workspaceFile of workspaceFiles) {
-    log(`\n--- Processing workspace: ${workspaceFile.toString()} ---`);
+    log(`--- Processing workspace: ${workspaceFile.toString()} ---`);
 
     const workspaceRoot = Utils.dirname(workspaceFile);
     const packages: WorkspacePackage[] = [];
@@ -58,7 +58,6 @@ export async function scanWorkspacePackages(): Promise<WorkspacePackage[]> {
           rootPath = workspaceFolder ? vscode.workspace.asRelativePath(workspaceRoot, false) : rootInfo.path;
         }
 
-        log(`Workspace root path determined as: "${rootPath}"`);
         packages.push({
           name: rootInfo.name,
           path: rootPath,
@@ -98,15 +97,10 @@ export async function scanWorkspacePackages(): Promise<WorkspacePackage[]> {
       }
     }
 
-    log(`Workspace ${Utils.basename(workspaceRoot)} contributed ${packages.length} packages`);
     allPackages.push(...packages);
   }
 
-  log(`\n--- Scan Summary ---`);
   log(`Total packages discovered: ${allPackages.length}`);
-  allPackages.forEach((pkg) => {
-    log(`Package: ${pkg.name} (${pkg.path}) ${pkg.isRoot ? '(root)' : ''}`);
-  });
 
   // Check for duplicate package names across workspaces
   const packageNames = allPackages.map((pkg) => pkg.name);
@@ -184,15 +178,10 @@ export async function getPackageAndDependencyPaths(packageName: string): Promise
   // Add the target package path first, but skip if it's the workspace root (current directory)
   if (targetPackage.path && targetPackage.path !== '.') {
     allPaths.push(targetPackage.path);
-    log(`Added target package path: ${targetPackage.path}`);
-  } else {
-    log(`Skipping target package path (workspace root): ${targetPackage.path}`);
   }
 
   // Get workspace dependency paths
   const dependencyPaths = await getWorkspaceDependencyPathsFromPackage(packageName, packages);
   allPaths.push(...dependencyPaths);
-
-  log(`Final paths for search (${packageName} + dependencies): [${allPaths.join(', ')}]`);
   return allPaths;
 }

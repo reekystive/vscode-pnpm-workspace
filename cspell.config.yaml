@@ -6,6 +6,7 @@ words:
   - Mingxuan
   - ovsx
   - Rescan
+  - subdirs
 ignorePaths:
   - pnpm-lock.yaml
   - cspell.config.yaml

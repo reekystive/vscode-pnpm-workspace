@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { DEFAULT_EXCLUDE_PATTERNS } from './constants.js';
 import { log, logError } from './logger.js';
 import { PackageJsonSchema } from './schemas.js';
+import { findFilesWithFallback } from './virtual-workspace-workaround.js';
 
 export interface WorkspacePackage {
   name: string;
@@ -46,18 +47,12 @@ export async function discoverPackages(workspaceRoot: vscode.Uri, patterns: stri
 
   try {
     log(`Searching for packages with patterns: {${includePatterns.join(',')}}`);
-    log(`Excluding patterns: {${excludePatterns.join(',')}}`);
+    log(`Running enhanced findFiles with virtual workspace support...`);
 
-    // Use VS Code's findFiles API with combined glob pattern
-    const includeGlob = new vscode.RelativePattern(workspaceFolder, `{${includePatterns.join(',')}}`);
-    const excludeGlob = `{${excludePatterns.join(',')}}`;
-
-    const packageJsonFiles = await vscode.workspace.findFiles(includeGlob, excludeGlob);
+    // Use the enhanced findFiles function that handles virtual workspaces
+    const packageJsonFiles = await findFilesWithFallback(workspaceFolder, includePatterns, excludePatterns);
 
     log(`Found ${packageJsonFiles.length} package.json files`);
-    packageJsonFiles.forEach((file) => {
-      log(`  - ${file.toString()}`);
-    });
 
     return packageJsonFiles;
   } catch (error) {
@@ -71,8 +66,6 @@ export async function discoverPackages(workspaceRoot: vscode.Uri, patterns: stri
  */
 export async function loadPackageInfo(packageJsonUri: vscode.Uri): Promise<{ name: string; path: string } | null> {
   try {
-    log(`Loading package info from: ${packageJsonUri.toString()}`);
-
     const content = await vscode.workspace.fs.readFile(packageJsonUri);
     const packageJsonText = new TextDecoder('utf-8').decode(content);
     const packageJson = JSON.parse(packageJsonText) as unknown;
@@ -85,26 +78,46 @@ export async function loadPackageInfo(packageJsonUri: vscode.Uri): Promise<{ nam
 
     let relativePath: string;
     if (workspaceFolder) {
-      // Use asRelativePath and ensure it's actually relative
+      // Use asRelativePath first
       const vsCodeRelativePath = vscode.workspace.asRelativePath(packageDir, false);
-      // If asRelativePath returns an absolute path (starts with / or drive letter), compute manually
+
+      // Check if asRelativePath worked correctly (returned a relative path)
       if (vsCodeRelativePath.startsWith('/') || (vsCodeRelativePath.length > 1 && vsCodeRelativePath[1] === ':')) {
-        // Manually compute relative path from workspace folder to package directory
-        const workspacePath = workspaceFolder.uri.fsPath;
-        const packagePath = packageDir.fsPath;
-        if (packagePath.startsWith(workspacePath)) {
-          relativePath = packagePath.substring(workspacePath.length + 1).replace(/\\/g, '/');
-        } else {
+        // asRelativePath returned an absolute path, compute manually using URI operations
+        try {
+          const workspaceUri = workspaceFolder.uri;
+          const packageUri = packageDir;
+
+          // Use URI-based path operations that work in virtual workspaces
+          const workspacePath = workspaceUri.path;
+          const packagePath = packageUri.path;
+
+          if (packagePath.startsWith(workspacePath)) {
+            // Remove workspace path prefix and normalize separators
+            relativePath = packagePath.substring(workspacePath.length);
+            // Remove leading slash if present
+            if (relativePath.startsWith('/')) {
+              relativePath = relativePath.substring(1);
+            }
+            // Ensure forward slashes for consistency
+            relativePath = relativePath.replace(/\\/g, '/');
+          } else {
+            // Fallback to the original result if path doesn't match
+            relativePath = vsCodeRelativePath;
+          }
+        } catch {
+          // If URI operations fail, use the original result
           relativePath = vsCodeRelativePath;
         }
       } else {
         relativePath = vsCodeRelativePath;
       }
     } else {
+      // Use URI path instead of fsPath for virtual workspace compatibility
       relativePath = packageDir.path;
     }
 
-    log(`Package validation successful: ${validatedPackage.name} at ${relativePath}`);
+    log(`Loaded package: ${validatedPackage.name} at ${relativePath}`);
     return {
       name: validatedPackage.name,
       path: relativePath,

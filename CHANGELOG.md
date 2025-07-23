@@ -8,6 +8,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/), and this 
 
 ## [Unreleased]
 
+### Fixed
+
+- **Virtual Workspace Support**: Added comprehensive support for virtual workspaces (vscode-test-web, GitHub Codespaces, etc.)
+  - Implemented workaround for VSCode issue [#249197](https://github.com/microsoft/vscode/issues/249197) where `workspace.findFiles` fails in virtual workspaces
+  - Added fallback manual directory traversal using `workspace.fs` APIs when `findFiles` returns no results
+  - Replaced `fsPath` usage with URI-based path operations for cross-platform compatibility
+  - Extension now works correctly in both traditional file system and virtual workspace environments
+
 ## [0.2.4] - 2025-07-23
 
 ### Changed
