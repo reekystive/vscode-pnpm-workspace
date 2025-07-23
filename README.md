@@ -2,6 +2,8 @@
 
 A comprehensive VS Code extension providing productivity tools for pnpm workspace projects. This extension aims to streamline your monorepo development workflow with a suite of workspace-specific utilities.
 
+View this extension on [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=reekystive.pnpm-workspace) or [Open VSX](https://open-vsx.org/extension/reekystive/pnpm-workspace).
+
 ## 🚀 Current Features
 
 **Workspace Productivity Tools** - Comprehensive utilities for pnpm workspace projects!
