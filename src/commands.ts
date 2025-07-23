@@ -311,8 +311,8 @@ export function registerCommands(context: vscode.ExtensionContext) {
         // Get all paths (package + dependencies)
         const allPaths = await getPackageAndDependencyPaths(selected.package.name);
 
-        // Format paths for search (comma-space separated)
-        const searchPaths = allPaths.join(', ');
+        // Format paths for search (comma separated with curly braces and /**/* suffix)
+        const searchPaths = `{${allPaths.join(',')}}/**/*`;
         log(`Opening search with paths: ${searchPaths}`);
 
         // Open search view with paths pre-filled
