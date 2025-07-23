@@ -8,7 +8,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/), and this 
 
 ## [Unreleased]
 
-### Fixed
+## [0.4.0] - 2025-07-23
+
+### Added
 
 - **Virtual Workspace Support**: Added comprehensive support for virtual workspaces (vscode-test-web, GitHub Codespaces, etc.)
   - Implemented workaround for VSCode issue [#249197](https://github.com/microsoft/vscode/issues/249197) where `workspace.findFiles` fails in virtual workspaces
