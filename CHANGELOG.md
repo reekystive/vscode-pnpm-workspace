@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/), and this 
 
 ## [Unreleased]
 
+## [0.4.1] - 2025-07-24
+
 ### Added
 
 - **Reveal Original in Explorer View**: New feature to quickly navigate from symlinked files to their original locations
