@@ -233,8 +233,10 @@ export async function revealOriginalInExplorer(uri: vscode.Uri): Promise<void> {
     // Create URI for the resolved path
     const resolvedUri = vscode.Uri.file(resolvedPath);
 
-    // Reveal the file in the Explorer
+    // Reveal the file in Explorer
+    log(`Revealing original file in explorer: ${resolvedUri.toString()}`);
     await vscode.commands.executeCommand('revealInExplorer', resolvedUri);
+    log('Successfully revealed original file in explorer');
 
     log(`Revealed original file in explorer: ${filePath} -> ${resolvedPath}`);
   } catch (error) {

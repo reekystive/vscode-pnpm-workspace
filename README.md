@@ -12,6 +12,7 @@ View this extension on [VS Code Marketplace](https://marketplace.visualstudio.co
 - **Copy Workspace Dependency Paths**: Select any package in your pnpm workspace and copy its workspace dependency paths to clipboard, with each dependency path on a new line
 - **Search in Package and Workspace Dependencies**: Select a package and open VS Code search with the package and all its workspace dependencies pre-filled in the search scope
 - **Reveal Original in Explorer View**: Quickly navigate from symlinked files (especially in `node_modules`) to their original locations in workspace packages
+- **Reveal Workspace Package in Explorer View**: Select any workspace package from a quick picker and reveal it in Explorer
 - **Re-scan Workspace**: Manually refresh the workspace package cache when needed
 - **Web Extension Support**: Works in VS Code for the Web and remote development environments (symlink features are desktop-only)
 - **Workspace Root Support**: Includes the workspace root package with special marking
@@ -34,6 +35,7 @@ This extension contributes the following commands:
 - `pnpm Workspace: Copy Workspace Dependency Paths Of...` - Opens a quick picker to select a package and copies its workspace dependency paths
 - `pnpm Workspace: Search in Package and Workspace Dependencies...` - Opens a quick picker to select a package and opens search with the package and its dependencies
 - `pnpm Workspace: Reveal Original in Explorer View` - Reveals the original file location for symlinked files (desktop only)
+- `pnpm Workspace: Reveal Workspace Package in Explorer View...` - Opens a quick picker to select and reveal a workspace package
 - `pnpm Workspace: Re-scan Workspace Packages` - Clears the package cache and re-scans the workspace
 
 ## Usage
@@ -83,6 +85,21 @@ Perfect for pnpm workspaces where packages are symlinked into `node_modules`! Th
 - Works with files and folders inside symlinked directories
 - User-friendly feedback for non-symlink files
 - Desktop-only feature (requires Node.js filesystem APIs)
+
+### Reveal Workspace Package in Explorer View
+
+Quickly navigate to any workspace package location:
+
+1. Run `pnpm Workspace: Reveal Workspace Package in Explorer View...` from the Command Palette
+2. Select the workspace package you want to navigate to from the quick picker
+3. VS Code will reveal the selected package directory in the Explorer view
+
+**Features:**
+
+- Quick picker with all workspace packages
+- Workspace root is listed first with special marking
+- Packages are sorted alphabetically (@ packages after regular packages)
+- Displays package paths as descriptions for easy identification
 
 The extension automatically scans your workspace on first use and caches the results. Use the re-scan command if you've added or removed packages.
 

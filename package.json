@@ -84,6 +84,11 @@
         "command": "pnpm-workspace.revealOriginalInExplorer",
         "title": "pnpm Workspace: Reveal Original in Explorer View",
         "shortTitle": "Reveal Original in Explorer View"
+      },
+      {
+        "command": "pnpm-workspace.revealWorkspacePackageInExplorer",
+        "title": "pnpm Workspace: Reveal Workspace Package in Explorer View...",
+        "shortTitle": "Reveal Workspace Package in Explorer View"
       }
     ],
     "menus": {

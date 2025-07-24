@@ -17,6 +17,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/), and this 
   - Multi-level symlink resolution that follows symlinks at each directory level from workspace root
   - User feedback for non-symlink files to inform when no action is needed
   - Perfect for pnpm workspace users who need to quickly find original files in `node_modules` symlinks
+- **Reveal Workspace Package in Explorer View**: New command to quickly navigate to workspace packages
+  - Command: `pnpm Workspace: Reveal Workspace Package in Explorer View...` - Opens a quick picker to select and reveal workspace packages
+  - Uses familiar quick picker interface with workspace root prioritization and alphabetical sorting
+  - Ideal for quickly jumping to specific packages in large monorepos
 
 ## [0.4.0] - 2025-07-23
 

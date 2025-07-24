@@ -403,11 +403,128 @@ export function registerCommands(context: vscode.ExtensionContext) {
     }
   );
 
+  // Reveal Workspace Package in Explorer View...
+  const revealWorkspacePackage = vscode.commands.registerCommand(
+    'pnpm-workspace.revealWorkspacePackageInExplorer',
+    async () => {
+      log('=================================');
+      log('Executing revealWorkspacePackageInExplorer command');
+
+      try {
+        // Create and show QuickPick immediately with loading state
+        const quickPick = vscode.window.createQuickPick();
+        quickPick.placeholder = 'Select a workspace package to reveal in Explorer';
+        quickPick.matchOnDescription = true;
+        quickPick.busy = true;
+        quickPick.items = [{ label: 'Loading packages...', description: 'Scanning workspace' }];
+        quickPick.show();
+
+        let packages: WorkspacePackage[];
+        try {
+          // Load packages in background
+          packages = await getWorkspacePackages();
+        } catch (error) {
+          quickPick.hide();
+          logError('Failed to load workspace packages', error);
+          vscode.window.showErrorMessage('Failed to load workspace packages');
+          return;
+        }
+
+        if (packages.length === 0) {
+          quickPick.hide();
+          vscode.window.showErrorMessage(
+            'No pnpm workspace packages found. Make sure you have a pnpm-workspace.yaml file.'
+          );
+          return;
+        }
+
+        // Update QuickPick with actual packages
+        interface QuickPickItemWithPackage extends vscode.QuickPickItem {
+          package: WorkspacePackage;
+        }
+
+        const items: QuickPickItemWithPackage[] = packages
+          .sort((a, b) => {
+            // Workspace root always comes first
+            if (a.isRoot && !b.isRoot) {
+              return -1;
+            }
+            if (!a.isRoot && b.isRoot) {
+              return 1;
+            }
+            // @ packages come after regular packages
+            const aStartsWithAt = a.name.startsWith('@');
+            const bStartsWithAt = b.name.startsWith('@');
+            if (!aStartsWithAt && bStartsWithAt) {
+              return -1;
+            }
+            if (aStartsWithAt && !bStartsWithAt) {
+              return 1;
+            }
+            // Otherwise sort alphabetically by name
+            return a.name.localeCompare(b.name);
+          })
+          .map((pkg: WorkspacePackage) => ({
+            label: pkg.isRoot ? `${pkg.name} (Workspace Root)` : pkg.name,
+            description: pkg.path,
+            package: pkg,
+          }));
+
+        quickPick.busy = false;
+        quickPick.items = items;
+
+        // Wait for user selection
+        const selected = await new Promise<QuickPickItemWithPackage | undefined>((resolve) => {
+          quickPick.onDidAccept(() => {
+            const selection = quickPick.selectedItems[0] as QuickPickItemWithPackage;
+            quickPick.hide();
+            resolve(selection);
+          });
+          quickPick.onDidHide(() => {
+            resolve(undefined);
+          });
+        });
+
+        if (!selected) {
+          return;
+        }
+
+        // Reveal the package in Explorer
+        // Get the workspace folder to build absolute path
+        const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+        if (!workspaceFolder) {
+          vscode.window.showErrorMessage('No workspace folder found');
+          return;
+        }
+
+        // Build absolute URI directly
+        const packageUri = selected.package.path.startsWith('/')
+          ? vscode.Uri.file(selected.package.path)
+          : vscode.Uri.joinPath(workspaceFolder.uri, selected.package.path);
+
+        log(`Revealing workspace package in explorer: ${packageUri.toString()}`);
+        try {
+          await vscode.commands.executeCommand('revealInExplorer', packageUri);
+          log('Successfully revealed workspace package in explorer');
+        } catch (error) {
+          logError('Failed to reveal workspace package in explorer', error);
+          vscode.window.showErrorMessage('Failed to reveal workspace package in explorer');
+        }
+
+        log(`Revealed workspace package in explorer: ${selected.package.name} at ${selected.package.path}`);
+      } catch (error) {
+        logError('Failed to reveal workspace package in explorer', error);
+        vscode.window.showErrorMessage('Failed to reveal workspace package in Explorer.');
+      }
+    }
+  );
+
   context.subscriptions.push(
     copyWorkspaceDependencyNames,
     copyWorkspaceDependencyPaths,
     searchInPackageAndWorkspaceDependencies,
     rescanWorkspacePackages,
-    revealOriginalCommand
+    revealOriginalCommand,
+    revealWorkspacePackage
   );
 }
