@@ -3,6 +3,7 @@ import * as vscode from 'vscode';
 // Import reliable test suites
 import './schemas.test.js';
 import './simple-integration.test.js';
+import './symlink-resolver.test.js';
 
 // Main test suite entry point
 suite('pnpm Workspace Extension Test Suite', () => {

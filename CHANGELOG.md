@@ -8,6 +8,16 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/), and this 
 
 ## [Unreleased]
 
+### Added
+
+- **Reveal Original in Explorer View**: New feature to quickly navigate from symlinked files to their original locations
+  - Command: `pnpm Workspace: Reveal Original in Explorer View` - Reveals the original file location for symlinked files
+  - Context menu item in Explorer view for files - Right-click on any file to reveal its original location
+  - Intelligent symlink resolution with cycle detection to handle complex symlink chains
+  - Multi-level symlink resolution that follows symlinks at each directory level from workspace root
+  - User feedback for non-symlink files to inform when no action is needed
+  - Perfect for pnpm workspace users who need to quickly find original files in `node_modules` symlinks
+
 ## [0.4.0] - 2025-07-23
 
 ### Added

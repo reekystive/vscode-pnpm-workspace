@@ -8,6 +8,7 @@ import {
   getWorkspacePackages,
   type WorkspacePackage,
 } from './pnpm-workspace.js';
+import { revealOriginalInExplorer } from './symlink-resolver.js';
 
 export function registerCommands(context: vscode.ExtensionContext) {
   // Copy Workspace Dependency Names Of...
@@ -375,10 +376,38 @@ export function registerCommands(context: vscode.ExtensionContext) {
     }
   );
 
+  // Reveal Original in Explorer View
+  const revealOriginalCommand = vscode.commands.registerCommand(
+    'pnpm-workspace.revealOriginalInExplorer',
+    async (uri?: vscode.Uri) => {
+      log('=================================');
+      log('Executing revealOriginalInExplorer command');
+
+      try {
+        // If no URI is provided, use the active editor's URI
+        let targetUri = uri;
+        if (!targetUri) {
+          const activeEditor = vscode.window.activeTextEditor;
+          if (!activeEditor) {
+            vscode.window.showErrorMessage('No file is currently open.');
+            return;
+          }
+          targetUri = activeEditor.document.uri;
+        }
+
+        await revealOriginalInExplorer(targetUri);
+      } catch (error) {
+        logError('Failed to reveal original in explorer', error);
+        vscode.window.showErrorMessage('Failed to reveal original file in Explorer.');
+      }
+    }
+  );
+
   context.subscriptions.push(
     copyWorkspaceDependencyNames,
     copyWorkspaceDependencyPaths,
     searchInPackageAndWorkspaceDependencies,
-    rescanWorkspacePackages
+    rescanWorkspacePackages,
+    revealOriginalCommand
   );
 }

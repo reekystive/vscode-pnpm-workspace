@@ -79,8 +79,22 @@
         "command": "pnpm-workspace.rescanWorkspacePackages",
         "title": "pnpm Workspace: Re-scan Workspace Packages",
         "shortTitle": "Re-scan Workspace Packages"
+      },
+      {
+        "command": "pnpm-workspace.revealOriginalInExplorer",
+        "title": "pnpm Workspace: Reveal Original in Explorer View",
+        "shortTitle": "Reveal Original in Explorer View"
       }
     ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "pnpm-workspace.revealOriginalInExplorer",
+          "group": "2_workspace@1",
+          "when": "!isWeb"
+        }
+      ]
+    },
     "configuration": {
       "title": "pnpm Workspace",
       "properties": {
